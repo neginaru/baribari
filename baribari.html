@@ -15,13 +15,15 @@
       text-align: center;
       touch-action: pan-x;
       user-select: none;
+      padding-bottom: 1cm;
     }
 
     #gameArea {
       position: relative;
       width: 100%;
       max-width: 400px;
-      height: 600px;
+      height: calc(100vh - 200px);
+      max-height: 600px;
       margin: 20px auto;
       background-color: #ddd;
       border: 2px solid #333;
@@ -47,15 +49,19 @@
     }
 
     #scoreBoard {
-      margin-top: 10px;
-      font-size: 18px;
+      margin-top: 5px;
+      font-size: 16px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     #retryBtn {
       display: none;
-      margin-top: 15px;
-      padding: 10px 20px;
-      font-size: 16px;
+      margin-top: 10px;
+      padding: 6px 12px;
+      font-size: 14px;
       background-color: #007bff;
       color: white;
       border: none;
@@ -119,11 +125,10 @@
 
       scoreInterval = setInterval(() => {
         if (!gameOver) {
-          const isDouble = Math.random() < 0.2; 
+          const isDouble = Math.random() < 0.2;
           const gain = isDouble ? 2 : 1;
           score += gain;
           scoreDisplay.textContent = score;
-
         }
       }, 1000);
 
@@ -181,7 +186,7 @@
     });
 
     document.addEventListener("touchmove", function(e) {
-      e.preventDefault(); // スクロール防止
+      e.preventDefault();
     }, { passive: false });
 
     function dropObstacle(side) {
@@ -199,7 +204,7 @@
           return;
         }
 
-        position += 15; // ← 落下速度調整
+        position += 15;
         obstacle.style.top = position + "px";
 
         const playerRect = player.getBoundingClientRect();
