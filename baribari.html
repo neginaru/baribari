@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>計略</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f0f0f0;
+      font-family: sans-serif;
+      text-align: center;
+      user-select: none;
+      touch-action: pan-y;
+    }
+
+    #gameArea {
+      position: relative;
+      width: 400px;
+      height: 600px;
+      margin: 20px auto;
+      background-color: #ddd;
+      border: 2px solid #333;
+      overflow: hidden;
+    }
+
+    #player {
+      position: absolute;
+      bottom: 20px;
+      width: 40px;
+      height: 40px;
+      background-color: red;
+      border-radius: 5px;
+    }
+
+    .obstacle {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background-color: black;
+      top: 0;
+      border-radius: 50%;
+    }
+
+    #scoreBoard {
+      margin-top: 10px;
+      font-size: 18px;
+    }
+
+    #retryBtn {
+      display: none;
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #retryBtn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>計略練習</h1>
+  <div id="scoreBoard">
+    score: <span id="score">0</span>　
+    ヒット数: <span id="hits">0</span> / 2
+  </div>
+  <button id="retryBtn">もう一回</button>
+  <div id="gameArea">
+    <div id="player"></div>
+  </div>
+
+  <script>
+    const player = document.getElementById("player");
+    const gameArea = document.getElementById("gameArea");
+    const scoreDisplay = document.getElementById("score");
+    const hitsDisplay = document.getElementById("hits");
+    const retryBtn = document.getElementById("retryBtn");
+
+    let score = 0;
+    let hits = 0;
+    let gameOver = false;
+    let obstacleInterval;
+    let scoreInterval;
+
+    const leftX = 80;
+    const rightX = 280;
+    let playerSide = "left";
+
+    function initGame() {
+      score = 0;
+      hits = 0;
+      gameOver = false;
+      playerSide = "left";
+      player.style.left = leftX + "px";
+      scoreDisplay.textContent = score;
+      hitsDisplay.textContent = hits;
+      retryBtn.style.display = "none";
+
+    scoreInterval = setInterval(() => {
+      if (!gameOver) {
+        const isDouble = Math.random() < 0.1;
+        const gain = isDouble ? 2 : 1;
+        score += gain;
+        scoreDisplay.textContent = score;
+      }
+    }, 1000);
+
+
+      obstacleInterval = setInterval(() => {
+        if (!gameOver) {
+          const side = Math.random() < 0.5 ? "left" : "right";
+          dropObstacle(side);
+        }
+      }, 200);
+    }
+
+    function endGame() {
+      gameOver = true;
+      clearInterval(obstacleInterval);
+      clearInterval(scoreInterval);
+      retryBtn.style.display = "inline-block";
+    }
+
+    retryBtn.addEventListener("click", () => {
+      document.querySelectorAll(".obstacle").forEach(el => el.remove());
+      retryBtn.style.display = "none";
+      initGame();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (gameOver) return;
+      if (e.key === "ArrowLeft") {
+        playerSide = "left";
+        player.style.left = leftX + "px";
+      } else if (e.key === "ArrowRight") {
+        playerSide = "right";
+        player.style.left = rightX + "px";
+      }
+    });
+
+    let touchStartX = null;
+    document.addEventListener("touchstart", (e) => {
+      touchStartX = e.touches[0].clientX;
+    });
+
+    document.addEventListener("touchend", (e) => {
+      if (gameOver || touchStartX === null) return;
+      const touchEndX = e.changedTouches[0].clientX;
+      const diff = touchEndX - touchStartX;
+      if (Math.abs(diff) > 50) {
+        if (diff < 0) {
+          playerSide = "left";
+          player.style.left = leftX + "px";
+        } else {
+          playerSide = "right";
+          player.style.left = rightX + "px";
+        }
+      }
+      touchStartX = null;
+    });
+
+    function dropObstacle(side) {
+      const obstacle = document.createElement("div");
+      obstacle.classList.add("obstacle");
+      obstacle.style.left = side === "left" ? leftX + "px" : rightX + "px";
+      obstacle.style.top = "0px";
+      gameArea.appendChild(obstacle);
+
+      let position = 0;
+      const interval = setInterval(() => {
+        if (gameOver) {
+          obstacle.remove();
+          clearInterval(interval);
+          return;
+        }
+
+        position += 15;
+        obstacle.style.top = position + "px";
+
+        const playerRect = player.getBoundingClientRect();
+        const obstacleRect = obstacle.getBoundingClientRect();
+        if (
+          obstacleRect.top < playerRect.bottom &&
+          obstacleRect.bottom > playerRect.top &&
+          obstacleRect.left < playerRect.right &&
+          obstacleRect.right > playerRect.left
+        ) {
+          hits++;
+          hitsDisplay.textContent = hits;
+          obstacle.remove();
+          clearInterval(interval);
+
+          if (hits >= 2) {
+            endGame();
+            alert("スコア: " + score);
+          }
+        }
+
+        if (position > 600) {
+          obstacle.remove();
+          clearInterval(interval);
+        }
+      }, 30);
+    }
+
+    initGame();
+  </script>
+
+</body>
+</html>
