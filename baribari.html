@@ -3,20 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <title>計略</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
+    html, body {
       margin: 0;
       padding: 0;
-      background-color: #f0f0f0;
+      height: 100vh;
+      overflow: hidden;
       font-family: sans-serif;
+      background-color: #f0f0f0;
       text-align: center;
+      touch-action: pan-x;
       user-select: none;
-      touch-action: pan-y;
     }
 
     #gameArea {
       position: relative;
-      width: 400px;
+      width: 100%;
+      max-width: 400px;
       height: 600px;
       margin: 20px auto;
       background-color: #ddd;
@@ -62,6 +66,13 @@
     #retryBtn:hover {
       background-color: #0056b3;
     }
+
+    #doubleNotice {
+      font-size: 16px;
+      color: green;
+      margin-top: 5px;
+      height: 20px;
+    }
   </style>
 </head>
 <body>
@@ -71,6 +82,7 @@
     score: <span id="score">0</span>　
     ヒット数: <span id="hits">0</span> / 2
   </div>
+  <div id="doubleNotice"></div>
   <button id="retryBtn">もう一回</button>
   <div id="gameArea">
     <div id="player"></div>
@@ -82,6 +94,7 @@
     const scoreDisplay = document.getElementById("score");
     const hitsDisplay = document.getElementById("hits");
     const retryBtn = document.getElementById("retryBtn");
+    const doubleNotice = document.getElementById("doubleNotice");
 
     let score = 0;
     let hits = 0;
@@ -102,16 +115,18 @@
       scoreDisplay.textContent = score;
       hitsDisplay.textContent = hits;
       retryBtn.style.display = "none";
+      doubleNotice.textContent = "";
 
-    scoreInterval = setInterval(() => {
-      if (!gameOver) {
-        const isDouble = Math.random() < 0.1;
-        const gain = isDouble ? 2 : 1;
-        score += gain;
-        scoreDisplay.textContent = score;
-      }
-    }, 1000);
+      scoreInterval = setInterval(() => {
+        if (!gameOver) {
+          const isDouble = Math.random() < 0.2; 
+          const gain = isDouble ? 2 : 1;
+          score += gain;
+          scoreDisplay.textContent = score;
 
+          doubleNotice.textContent = isDouble ? "ラッキー！得点2倍！" : "";
+        }
+      }, 1000);
 
       obstacleInterval = setInterval(() => {
         if (!gameOver) {
@@ -166,6 +181,10 @@
       touchStartX = null;
     });
 
+    document.addEventListener("touchmove", function(e) {
+      e.preventDefault(); // スクロール防止
+    }, { passive: false });
+
     function dropObstacle(side) {
       const obstacle = document.createElement("div");
       obstacle.classList.add("obstacle");
@@ -181,7 +200,7 @@
           return;
         }
 
-        position += 15;
+        position += 15; // ← 落下速度調整
         obstacle.style.top = position + "px";
 
         const playerRect = player.getBoundingClientRect();
