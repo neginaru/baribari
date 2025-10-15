@@ -131,7 +131,7 @@
 
       obstacleInterval = setInterval(() => {
         if (!gameOver) {
-          const side = Math.random() < 0.3 ? "left" : "right";
+          const side = Math.random() < 0.5 ? "left" : "right";
           dropObstacle(side);
         }
       }, 500);
