@@ -127,11 +127,11 @@
           score += gain;
           scoreDisplay.textContent = score;
         }
-      }, 10);
+      }, 1000);
 
       obstacleInterval = setInterval(() => {
         if (!gameOver) {
-          const side = Math.random() < 0.5 ? "left" : "right";
+          const side = Math.random() < 0.3 ? "left" : "right";
           dropObstacle(side);
         }
       }, 500);
@@ -227,7 +227,7 @@
           obstacle.remove();
           clearInterval(interval);
         }
-      }, 30);
+      }, 300);
     }
 
     initGame();
