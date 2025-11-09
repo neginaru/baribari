@@ -127,7 +127,7 @@
           score += gain;
           scoreDisplay.textContent = score;
         }
-      }, 300);
+      }, 150);
 
       obstacleInterval = setInterval(() => {
         if (!gameOver) {
@@ -201,7 +201,7 @@
           return;
         }
 
-        position += 15;
+        position += 25;
         obstacle.style.top = position + "px";
 
         const playerRect = player.getBoundingClientRect();
